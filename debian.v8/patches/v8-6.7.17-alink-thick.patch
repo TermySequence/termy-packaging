@@ -1,0 +1,51 @@
+diff -Naur v8-6.7.17-old/tools/gyp/pylib/gyp/generator/make.py v8-6.7.17/tools/gyp/pylib/gyp/generator/make.py
+--- v8-6.7.17-old/tools/gyp/pylib/gyp/generator/make.py	2018-05-18 12:45:21.685487376 -0400
++++ v8-6.7.17/tools/gyp/pylib/gyp/generator/make.py	2018-05-18 12:46:41.979242806 -0400
+@@ -141,7 +141,7 @@
+ cmd_alink = rm -f $@ && $(AR.$(TOOLSET)) crs $@ $(filter %.o,$^)
+ 
+ quiet_cmd_alink_thin = AR($(TOOLSET)) $@
+-cmd_alink_thin = rm -f $@ && $(AR.$(TOOLSET)) crsT $@ $(filter %.o,$^)
++cmd_alink_thin = rm -f $@ && $(AR.$(TOOLSET)) crs $@ $(filter %.o,$^)
+ 
+ # Due to circular dependencies between libraries :(, we wrap the
+ # special "figure out circular dependencies" flags around the entire
+@@ -191,7 +191,7 @@
+ cmd_alink = rm -f $@ && $(AR.$(TOOLSET)) crs $@ $(filter %.o,$^)
+ 
+ quiet_cmd_alink_thin = AR($(TOOLSET)) $@
+-cmd_alink_thin = rm -f $@ && $(AR.$(TOOLSET)) crsT $@ $(filter %.o,$^)
++cmd_alink_thin = rm -f $@ && $(AR.$(TOOLSET)) crs $@ $(filter %.o,$^)
+ 
+ # Due to circular dependencies between libraries :(, we wrap the
+ # special "figure out circular dependencies" flags around the entire
+@@ -1589,7 +1589,7 @@
+             "Spaces in alink input filenames not supported (%s)"  % link_dep)
+       if (self.flavor not in ('mac', 'openbsd', 'netbsd', 'win') and not
+           self.is_standalone_static_library):
+-        self.WriteDoCmd([self.output_binary], link_deps, 'alink_thin',
++        self.WriteDoCmd([self.output_binary], link_deps, 'alink',
+                         part_of_all, postbuilds=postbuilds)
+       else:
+         self.WriteDoCmd([self.output_binary], link_deps, 'alink', part_of_all,
+diff -Naur v8-6.7.17-old/tools/gyp/pylib/gyp/generator/ninja.py v8-6.7.17/tools/gyp/pylib/gyp/generator/ninja.py
+--- v8-6.7.17-old/tools/gyp/pylib/gyp/generator/ninja.py	2018-05-18 12:45:21.689496296 -0400
++++ v8-6.7.17/tools/gyp/pylib/gyp/generator/ninja.py	2018-05-18 12:46:41.871164624 -0400
+@@ -1326,7 +1326,7 @@
+       self.target.binary = self.ComputeOutput(spec)
+       if (self.flavor not in ('mac', 'openbsd', 'netbsd', 'win') and not
+           self.is_standalone_static_library):
+-        self.ninja.build(self.target.binary, 'alink_thin', link_deps,
++        self.ninja.build(self.target.binary, 'alink', link_deps,
+                          order_only=compile_deps)
+       else:
+         variables = []
+@@ -2112,7 +2112,7 @@
+       description='AR $out',
+       command='rm -f $out && $ar rcs $arflags $out $in')
+     master_ninja.rule(
+-      'alink_thin',
++      'alink',
+       description='AR $out',
+       command='rm -f $out && $ar rcsT $arflags $out $in')
+ 

@@ -1,0 +1,7 @@
+libv8 for Debian
+----------------
+
+This packaging is based on work by Tom Callaway <spot@fedoraproject.org>
+https://src.fedoraproject.org/rpms/v8
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Sat, 26 May 2018 16:33:00 -0400

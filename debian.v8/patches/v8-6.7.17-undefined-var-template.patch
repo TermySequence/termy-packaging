@@ -1,0 +1,21 @@
+diff -Naur v8-6.7.17-old/build/config/compiler/BUILD.gn v8-6.7.17/build/config/compiler/BUILD.gn
+--- v8-6.7.17-old/build/config/compiler/BUILD.gn	2018-05-18 12:45:22.535263342 -0400
++++ v8-6.7.17/build/config/compiler/BUILD.gn	2018-05-18 12:50:22.873179648 -0400
+@@ -1324,7 +1324,7 @@
+       # recognize.
+       cflags += [
+         # TODO(thakis): https://crbug.com/604888
+-        "-Wno-undefined-var-template",
++        "",
+ 
+         # TODO(thakis): https://crbug.com/617318
+         "-Wno-nonportable-include-path",
+@@ -1347,7 +1347,7 @@
+     } else if (use_xcode_clang) {
+       cflags += [
+         # TODO(thakis): https://crbug.com/604888
+-        "-Wno-undefined-var-template",
++        "",
+ 
+         # TODO(hans): https://crbug.com/637306
+         "-Wno-address-of-packed-member",

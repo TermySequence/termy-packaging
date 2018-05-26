@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+# export DH_VERBOSE = 1
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+%:
+	dh $@
+
+override_dh_auto_test:
+# Tests require root and a setuid binary, so disable for now
+# cd obj-* && python3 -m pytest test/
+
+override_dh_install:
+	rm -r $$(pwd)/debian/tmp/etc/init.d
+	rm -r $$(pwd)/debian/tmp/dev
+	cd $$(pwd)/debian/tmp/usr/share/man/man8/ && mv mount.fuse.8.gz mount.fuse3.8.gz
+	cp $$(pwd)/debian/fuse.conf $$(pwd)/debian/tmp/etc/fuse3.conf
+	dh_install

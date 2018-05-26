@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+export DEB_CFLAGS_MAINT_APPEND=-DNDEBUG
+export DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DBUILD_TESTS=1 -DINSTALL_SHELL_INTEGRATION=1
+
+override_dh_auto_install:
+	make install -C icons DESTDIR=$$(pwd)/debian/tmp PREFIX=/usr
+	make install -C emoji DESTDIR=$$(pwd)/debian/tmp PREFIX=/usr
+	dh_auto_install

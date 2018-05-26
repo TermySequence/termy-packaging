@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+case "${1}" in
+	configure)
+		if ! dpkg-statoverride --list /bin/fusermount3 > /dev/null 2>&1
+		then
+			chmod 4755 /bin/fusermount3
+		fi
+
+		if [ ! -e /etc/fuse.conf ]
+		then
+			ln -s /etc/fuse3.conf /etc/fuse.conf
+		fi
+		;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+
+		;;
+
+	*)
+		echo "postinst called with unknown argument \`${1}'" >&2
+		exit 1
+		;;
+esac
+
+#DEBHELPER#
+exit 0

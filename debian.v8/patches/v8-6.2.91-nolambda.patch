@@ -1,0 +1,11 @@
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1330,7 +1330,7 @@ config("default_warnings") {
+         "-Wno-address-of-packed-member",
+ 
+         # TODO(hans): https://crbug.com/681136
+-        "-Wno-unused-lambda-capture",
++        # "-Wno-unused-lambda-capture",
+ 
+         # TODO(thakis ): https://crbug.com/683349
+         "-Wno-user-defined-warnings",

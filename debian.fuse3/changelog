@@ -1,0 +1,5 @@
+fuse3 (3.2.3-bionic4) bionic; urgency=medium
+
+  * Packaging for Fuse 3.2.3 release
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Fri, 18 May 2018 01:45:00 -0400
