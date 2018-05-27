@@ -1,0 +1,59 @@
+name: qtermy
+version: '1.0.1'
+summary: TermySequence terminal emulation system
+description: |
+  TermySequence is a terminal emulation system with a focus on
+  connectivity, productivity, and collaboration.
+
+grade: devel
+confinement: classic
+base: core18
+architectures: [amd64]
+
+icon: qtermy.svg
+
+environment:
+  LD_LIBRARY_PATH: $SNAP/usr/lib/x86_64-gnu-linux:$SNAP/lib/x86_64-gnu-linux
+  PATH: $SNAP/usr/bin:$PATH
+
+apps:
+  qtermy:
+    command: usr/bin/qtermy
+    desktop: usr/share/applications/qtermy.desktop
+
+parts:
+  qtermy:
+    source: https://termysequence.io/releases/termysequence-1.0.1.tar.xz
+    plugin: cmake
+    configflags:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DUSE_SYSTEMD=0
+#    override-build: |
+#      sudo add-apt-repository -y ppa:sigalrm/termysequence
+#      sudo apt update
+#      snapcraftctl build
+    build-packages:
+      - debhelper
+      - cmake
+      - g++
+      - pkg-config
+      - qtbase5-dev
+      - libqt5svg5-dev
+      - qttools5-dev
+      - libv8-dev
+      - libgit2-dev
+      - libsqlite3-dev
+      - libfuse3-dev
+      - libz-dev
+      - uuid-dev
+    stage-packages:
+      - libqt5core5a
+      - libqt5gui5
+      - libqt5svg5
+      - libv8
+      - libgit2-26
+      - libsqlite3-0
+      - libfuse3
+      - zlib1g
+      - fuse3
+      - libnotify-bin
