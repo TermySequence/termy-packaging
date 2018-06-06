@@ -1,9 +1,6 @@
 #!/usr/bin/make -f
 #export DH_VERBOSE = 1
 
-export DEB_CFLAGS_MAINT_APPEND=-DNDEBUG
-export DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG
-
 %:
 	dh $@ --buildsystem=cmake
 

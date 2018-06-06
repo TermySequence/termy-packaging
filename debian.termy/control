@@ -1,3 +1,8 @@
+# version: 1.0.3
+# release: 2
+# icons_version: 1.0.1
+# emoji_version: 1.0.0
+
 Source: termysequence
 Section: utils
 Priority: optional
@@ -12,7 +17,7 @@ Homepage: https://termysequence.io
 Package: termy-server
 Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: libgit2, termy-shell-integration-bash
+Recommends: libgit2-26, termy-shell-integration-bash
 Description: TermySequence terminal multiplexer server
  A multiplexing terminal emulator server implementing
  the TermySequence protocol.
