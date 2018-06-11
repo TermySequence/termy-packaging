@@ -1,0 +1,5 @@
+v8 (6.7.18-1) bionic; urgency=medium
+
+  * Packaging for V8 6.7.18 release
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Sun, 10 Jun 2018 00:14:00 -0400
