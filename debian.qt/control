@@ -1,0 +1,21 @@
+# version: 1.1.1
+# release: 1
+
+Source: termysequence-qt
+Section: utils
+Priority: optional
+Maintainer: Eamon Walsh <ewalsh@termysequence.com>
+Build-Depends: debhelper (>= 10), cmake (>= 3.9), g++ (>= 4:7.3), pkg-config,
+ libsystemd-dev (>= 235), uuid-dev,
+ ninja-build, python2.7, python-minimal, libicu-dev, libatomic-ops-dev,
+ libsqlite3-dev, libfuse-dev (>= 2.9.7), libz-dev,
+ qtbase5-dev (>= 5.9), libqt5svg5-dev, qttools5-dev
+Standards-Version: 4.1.2
+Homepage: https://termysequence.io
+
+Package: termy-qt
+Architecture: amd64
+Depends: termy-server, fuse, libnotify-bin, ${shlibs:Depends}, ${misc:Depends}
+Description: TermySequence terminal multiplexer client
+ A Qt-based multiplexing terminal emulator client
+ implementing the TermySequence protocol.

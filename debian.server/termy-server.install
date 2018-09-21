@@ -1,4 +1,3 @@
-usr/bin/termyctl
-usr/bin/termy-[a-v]*
+usr/bin/termy*
 usr/lib/systemd/user/termy-server.*
 usr/share/man/man1/termy*.1*

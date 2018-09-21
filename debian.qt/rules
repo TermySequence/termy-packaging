@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DUSE_FUSE2=1 -DUSE_FUSE3=0
+
+override_dh_auto_install:
+	dh_auto_install -- install_emoji install_icons

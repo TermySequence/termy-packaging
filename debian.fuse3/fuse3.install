@@ -1,4 +1,0 @@
-/usr/bin/* /bin/
-/usr/sbin/* /sbin/
-/etc/fuse3.conf
-/usr/share/man*
