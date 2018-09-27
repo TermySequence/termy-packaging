@@ -10,8 +10,8 @@ fi
 phome=$(pwd)
 ident=$(git config user.email)
 
-vers=$(awk '/^# version:/ {print $3}' debian.qt/control)
-rel=$(awk '/^# release:/ {print $3}' debian.qt/control)
+vers=$(perl -ne 'm/\((.*)-.*\)/; print $1; exit' debian.qt/changelog)
+rel=$(perl -ne 'm/\(.*-(.*)\)/; print $1; exit' debian.qt/changelog)
 
 mkdir -p ~/deb
 cd ~/deb

@@ -1,5 +1,5 @@
 # version: 1.1.0
-# release: 3
+# release: 4
 
 Source: termysequence-server
 Section: utils
@@ -12,7 +12,7 @@ Standards-Version: 4.1.2
 Homepage: https://termysequence.io
 
 Package: termy-server
-Architecture: amd64
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgit2-26, termy-shell-integration-bash
 Description: TermySequence terminal multiplexer server

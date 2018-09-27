@@ -1,3 +1,16 @@
+termysequence-qt (1.1.3-1~bionic) bionic; urgency=medium
+
+  * Update to 1.1.3
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Thu, 27 Sep 2018 03:09:00 -0400
+
+termysequence-qt (1.1.1-4) bionic; urgency=medium
+
+  * Patch fuse2 compile on x86
+  * Enable x86 architecture
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Sat, 22 Sep 2018 22:59:00 -0400
+
 termysequence-qt (1.1.1-1) bionic; urgency=medium
 
   * Update to 1.1.1
