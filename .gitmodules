@@ -1,0 +1,6 @@
+[submodule "fedora.server"]
+	path = fedora.server
+	url = https://src.fedoraproject.org/rpms/termy-server.git
+[submodule "fedora.qt"]
+	path = fedora.qt
+	url = https://src.fedoraproject.org/rpms/termy-qt.git
