@@ -1,3 +1,1 @@
-usr/bin/termy*
-usr/lib/systemd/user/termy-server.*
-usr/share/man/man1/termy*.1*
+../ubuntu.server/termy-server.install
