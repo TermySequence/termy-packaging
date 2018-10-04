@@ -21,7 +21,6 @@ BuildRequires: desktop-file-utils
 BuildRequires: fuse-devel >= 2.9.7
 BuildRequires: gcc-c++
 BuildRequires: libatomic1
-BuildRequires: libgit2-devel >= 0.26
 BuildRequires: libicu-devel >= 60.2
 BuildRequires: libqt5-qtbase-devel libqt5-qtsvg-devel libqt5-linguist-devel
 BuildRequires: libuuid-devel
@@ -74,6 +73,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/qtermy.ap
 %license vendor/termy-icon-theme/COPYING.Adwaita
 %license vendor/termy-icon-theme/COPYING.Oxygen
 %license vendor/termy-emoji/LICENSE-GRAPHICS
+%license vendor/v8-linux/v8/LICENSE.v8
 %{_bindir}/qtermy
 %{_bindir}/qtermy-pipe
 %{_datadir}/qtermy
