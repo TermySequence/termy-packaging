@@ -1,0 +1,53 @@
+pkgname=(termy-server termy-shell-integration-bash)
+pkgver=1.1.0
+pkgrel=1
+_pkgdir="termysequence-$pkgver"
+pkgdesc="TermySequence terminal multiplexer server"
+arch=('x86_64' 'i686' 'aarch64')
+url="https://termysequence.io"
+license=('GPL2')
+makedepends=('cmake>=3.9.0' 'cmocka' 'libgit2>=0.26' 'systemd>=235')
+source=("termysequence-server_$pkgver.orig.tar.xz")
+sha256sums=('addc0bafa37d589de00dbf6aa25dc97cb163cea3c1a7c4a9fe82a76829055f01')
+
+prepare() {
+    cd $_pkgdir
+
+    cmake \
+        -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+        -DSYSCONF_INSTALL_DIR:PATH=/etc \
+        -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_TESTS=ON \
+        -DINSTALL_SHELL_INTEGRATION=ON \
+        .
+}
+
+build() {
+    cd $_pkgdir
+    make -j4
+}
+
+check() {
+    cd $_pkgdir
+    ctest -V
+}
+
+package_termy-server() {
+    depends=('systemd>=235')
+    optdepends=('libgit2: for git annotations and branch information reporting'
+                'termy-shell-integration-bash: for shell integration support')
+
+    cd $_pkgdir
+    make DESTDIR="$pkgdir/" install
+    rm -r $pkgdir/etc/profile.d
+    rmdir $pkgdir/etc || :
+}
+
+package_termy-shell-integration-bash() {
+    arch=('any')
+
+    cd $_pkgdir
+    make -C vendor DESTDIR="$pkgdir/" install
+}
