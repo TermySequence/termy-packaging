@@ -1,6 +1,6 @@
 Name:    termy-qt
 Summary: TermySequence terminal multiplexer client
-Version: 1.1.3
+Version: 1.1.4
 Release: 1%{?dist}
 
 # This is a limitation of the bundled v8 library
@@ -13,7 +13,7 @@ ExclusiveArch: %{ix86} x86_64
 License: GPL-2.0-only and LGPL-3.0-only and CC-BY-4.0 and BSD-3-Clause
 Group:   System/X11/Terminals
 URL:     https://termysequence.io
-Source:  https://termysequence.io/releases/termysequence-qt-%{version}.tar.xz
+Source:  termysequence-qt_%{version}.orig.tar.xz
 
 BuildRequires: appstream-glib
 BuildRequires: cmake >= 3.9.0
