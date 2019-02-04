@@ -1,7 +1,7 @@
 Name:    termy-qt
 Summary: TermySequence terminal multiplexer client
 Version: 1.1.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 # This is a limitation of the bundled v8 library
 ExclusiveArch: %{ix86} x86_64
@@ -14,6 +14,8 @@ License: GPL-2.0-only and LGPL-3.0-only and CC-BY-4.0 and BSD-3-Clause
 Group:   System/X11/Terminals
 URL:     https://termysequence.io
 Source:  termysequence-qt_%{version}.orig.tar.xz
+
+Patch1: set-clipboard-selection.patch
 
 BuildRequires: appstream-glib
 BuildRequires: cmake >= 3.9.0
@@ -42,7 +44,7 @@ A Qt-based multiplexing terminal emulator client
 implementing the TermySequence protocol.
 
 %prep
-%autosetup -n termysequence-%{version}
+%autosetup -p1 -n termysequence-%{version}
 
 %build
 %ifarch x86_64

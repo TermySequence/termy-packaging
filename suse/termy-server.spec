@@ -1,12 +1,14 @@
 Name:    termy-server
 Summary: TermySequence terminal multiplexer server
 Version: 1.1.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 License: GPL-2.0-only
 Group:   System/Console
 URL:     https://termysequence.io
 Source:  termysequence-server_%{version}.orig.tar.xz
+
+Patch1: setup-fix-session-check.patch
 
 BuildRequires: cmake >= 3.9.0
 BuildRequires: gcc-c++
@@ -24,7 +26,7 @@ A multiplexing terminal emulator server implementing
 the TermySequence protocol.
 
 %prep
-%autosetup -n termysequence-%{version}
+%autosetup -p1 -n termysequence-%{version}
 
 %build
 # Build type "None" disables Release/Debug CFLAGS and LDFLAGS set by CMake.

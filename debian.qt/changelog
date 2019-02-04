@@ -1,3 +1,9 @@
+termysequence-qt (1.1.4-2) unstable; urgency=medium
+
+  * qt: Set clipboard selection text following all selection edits (Issue #5)
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Sat, 26 Jan 2019 22:34:00 -0400
+
 termysequence-qt (1.1.4-1) unstable; urgency=medium
 
   * Update to 1.1.4
