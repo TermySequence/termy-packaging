@@ -8,6 +8,7 @@ if [ ! -d debian.server ]; then
 fi
 
 phome=$(pwd)
+ghome=~/git/termysequence
 ident=$(git config user.email)
 
 vers=$(perl -ne 'm/\((.*)-.*\)/; print $1; exit' debian.server/changelog)
@@ -16,8 +17,8 @@ rel=$(perl -ne 'm/\(.*-(.*)\)/; print $1; exit' debian.server/changelog)
 mkdir -p ~/deb
 cd ~/deb
 
-wget -nc https://termysequence.io/releases/termysequence-server-${vers}.tar.xz
-ln -sf termysequence-server-${vers}.tar.xz termysequence-server_${vers}.orig.tar.xz
+ln -sf $ghome/termysequence-server-${vers}.tar.xz .
+ln -sf $ghome/termysequence-server-${vers}.tar.xz termysequence-server_${vers}.orig.tar.xz
 
 rm -rf termysequence-${vers}/
 tar Jxf termysequence-server-${vers}.tar.xz
@@ -25,10 +26,10 @@ tar Jxf termysequence-server-${vers}.tar.xz
 cp -rL $phome/debian.server termysequence-${vers}/debian
 
 cd termysequence-${vers}/
-debuild -S -k${ident}
+debuild -d -S -k${ident}
 
 read -p 'build? ' build
 if [ "$build" = 'y' ]; then
-    debuild -us -uc
+    debuild -d -us -uc
     exit
 fi

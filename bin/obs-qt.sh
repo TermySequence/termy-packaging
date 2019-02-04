@@ -31,7 +31,8 @@ artifacts=($phome/build/termysequence-qt_$vers.orig.tar.xz
            $phome/build/termysequence-qt_$vers-$rel.debian.tar.xz
            $phome/build/termysequence-qt_$vers-$rel.dsc
            $phome/suse/termy-qt.spec
-           $phome/arch.qt/PKGBUILD)
+           $phome/arch.qt/PKGBUILD
+           $phome/fedora.qt/*.patch)
 
 cd $ohome
 for i in *; do

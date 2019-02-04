@@ -31,7 +31,8 @@ artifacts=($phome/build/termysequence-server_$vers.orig.tar.xz
            $phome/build/termysequence-server_$vers-$rel.debian.tar.xz
            $phome/build/termysequence-server_$vers-$rel.dsc
            $phome/suse/termy-server.spec
-           $phome/arch.server/PKGBUILD)
+           $phome/arch.server/PKGBUILD
+           $phome/fedora.server/*.patch)
 
 cd $ohome
 for i in *; do
