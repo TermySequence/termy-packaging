@@ -1,0 +1,2 @@
+set-clipboard-selection.patch
+fix-gcc-9-warnings-and-errors.patch

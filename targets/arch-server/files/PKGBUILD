@@ -1,0 +1,45 @@
+pkgname=termy-server
+pkgver=1.1.4
+pkgrel=3
+_pkgdir="termysequence-$pkgver"
+pkgdesc="TermySequence terminal multiplexer server"
+arch=('x86_64' 'i686' 'aarch64')
+url="https://termysequence.io"
+license=('GPL2')
+makedepends=('cmake>=3.9.0' 'cmocka' 'libgit2>=0.26' 'systemd>=235')
+depends=('systemd>=235')
+optdepends=('libgit2: for git annotations and branch information reporting')
+replaces=('termy-shell-integration-bash')
+source=("termysequence-server_$pkgver.orig.tar.xz" 'setup-fix-session-check.patch')
+sha256sums=('35e46e0ca3bec65ef4caa90a37548cc7207245ffa251b58afe3554df4046fe2e' '14b040b981222392433c5f2b8c96cd7b2be594baba1edbcb70516a5b307596cd')
+
+prepare() {
+    cd $_pkgdir
+
+    # Patches here (do not remove this comment)
+    patch -Np1 -i "${srcdir}/setup-fix-session-check.patch"
+
+    cmake \
+        -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+        -DSYSCONF_INSTALL_DIR:PATH=/etc \
+        -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_TESTS=ON \
+        .
+}
+
+build() {
+    cd $_pkgdir
+    make -j4
+}
+
+check() {
+    cd $_pkgdir
+    ctest -V
+}
+
+package() {
+    cd $_pkgdir
+    make DESTDIR="$pkgdir/" install
+}

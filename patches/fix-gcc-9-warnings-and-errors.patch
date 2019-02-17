@@ -1,0 +1,57 @@
+commit 922b3884b6bf30b8e9d832a861048c86f8efab36
+Author: Eamon Walsh <ewalsh@termysequence.com>
+Date:   Sat Feb 16 14:48:20 2019 -0500
+
+    Fix GCC 9 warnings and errors
+
+diff --git a/vendor/v8-linux/v8/src/base/file-utils.cc b/vendor/v8-linux/v8/src/base/file-utils.cc
+index 31b1b411..758fc4cb 100644
+--- a/vendor/v8-linux/v8/src/base/file-utils.cc
++++ b/vendor/v8-linux/v8/src/base/file-utils.cc
+@@ -25,7 +25,7 @@ char* RelativePath(char** buffer, const char* exec_path, const char* name) {
+         reinterpret_cast<char*>(calloc(path_separator + name_length + 2, 1));
+     *buffer[0] = '\0';
+     strncat(*buffer, exec_path, path_separator + 1);
+-    strncat(*buffer, name, name_length);
++    strncat(*buffer, name, name_length + 1);
+   } else {
+     *buffer = strdup(name);
+   }
+diff --git a/vendor/v8-linux/v8/src/base/platform/platform-posix.cc b/vendor/v8-linux/v8/src/base/platform/platform-posix.cc
+index cf7f3ec9..9f365df0 100644
+--- a/vendor/v8-linux/v8/src/base/platform/platform-posix.cc
++++ b/vendor/v8-linux/v8/src/base/platform/platform-posix.cc
+@@ -745,7 +745,7 @@ static void* ThreadEntry(void* arg) {
+ 
+ 
+ void Thread::set_name(const char* name) {
+-  strncpy(name_, name, sizeof(name_));
++  strncpy(name_, name, sizeof(name_) - 1);
+   name_[sizeof(name_) - 1] = '\0';
+ }
+ 
+diff --git a/vendor/v8-linux/v8/src/ia32/disasm-ia32.cc b/vendor/v8-linux/v8/src/ia32/disasm-ia32.cc
+index 42f699bf..d12802bb 100644
+--- a/vendor/v8-linux/v8/src/ia32/disasm-ia32.cc
++++ b/vendor/v8-linux/v8/src/ia32/disasm-ia32.cc
+@@ -605,6 +605,7 @@ int DisassemblerIA32::F7Instruction(byte* data) {
+       break;
+     default:
+       UnimplementedInstruction();
++      mnem = "(null)";
+   }
+   AppendToBuffer("%s ", mnem);
+   int count = PrintRightOperand(data);
+diff --git a/vendor/v8-linux/v8/src/libplatform/tracing/trace-object.cc b/vendor/v8-linux/v8/src/libplatform/tracing/trace-object.cc
+index 6b6e0cf4..8e94bf22 100644
+--- a/vendor/v8-linux/v8/src/libplatform/tracing/trace-object.cc
++++ b/vendor/v8-linux/v8/src/libplatform/tracing/trace-object.cc
+@@ -25,7 +25,7 @@ V8_INLINE static void CopyTraceObjectParameter(char** buffer,
+                                                const char** member) {
+   if (*member) {
+     size_t length = strlen(*member) + 1;
+-    strncpy(*buffer, *member, length);
++    memcpy(*buffer, *member, length);
+     *member = *buffer;
+     *buffer += length;
+   }
