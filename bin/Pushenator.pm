@@ -56,6 +56,14 @@ sub bump_version {
     }
 }
 
+sub push_scratch {
+    my ($config) = @_;
+
+    my $updir = "$$config{phome}/upstreams/fedora-$$config{product}/rawhide";
+    chdir $updir or die;
+    system("fedpkg scratch-build --nowait --fail-fast --srpm") and die;
+}
+
 sub push_copr {
     my ($config) = @_;
 
@@ -68,7 +76,6 @@ sub push_fedora {
     my ($config) = @_;
 
     my $updir = "$$config{phome}/upstreams/fedora-$$config{product}";
-    chdir "$updir/" or die;
 
     # Get commit message
     local $/ = undef;
@@ -77,26 +84,44 @@ sub push_fedora {
     close(FH);
     $summary =~ s/"/\\"/gs;
 
-    foreach my $branch (glob('*')) {
+    # Push
+    chdir "$updir/" or die;
+    foreach my $branch (sort {$b cmp $a} glob('*')) {
+        chdir "$updir/$branch/" or die;
+        if ('y' eq lc($$config{prompt_string}->("Commit branch $branch? [n]", '', 'n'))) {
+            system("git commit -aem \"$summary\"") and die;
+        }
         print "\tPushing branch $branch...\n";
-        chdir "$updir/branch" or die;
-        system("git commit -aem \"$summary\"") and die;
         system("fedpkg push") and die;
+    }
+
+    # Fetch
+    chdir "$updir/" or die;
+    foreach my $branch (sort {$b cmp $a} glob('*')) {
+        chdir "$updir/$branch/" or die;
+        system("git fetch") and die;
+    }
+
+    # Build
+    chdir "$updir/" or die;
+    foreach my $branch (sort {$b cmp $a} glob('*')) {
+        chdir "$updir/$branch/" or die;
+        system("fedpkg build --nowait") and die;
     }
 }
 
 sub push_launchpad {
     my ($config) = @_;
 
-    my $updir = "$$config{phome}/upstreams/debian-$$config{product}/files";
-    chdir $updir or die;
-
     mkdir "$$config{phome}/build";
-    chdir "$$config{phome}/build" or die;
+
+    my $filesdir = "$$config{phome}/targets/debian-$$config{product}/files/";
+    chdir "$filesdir/" or die;
 
     foreach my $dvers (glob("*")) {
         next if $dvers eq 'unstable';
 
+        chdir "$$config{phome}/build" or die;
         my $src = "termysequence-$$config{product}-$$config{version}.tar.xz";
         my $obssrc = "termysequence-$$config{product}_$$config{version}.orig.tar.xz";
         symlink "$$config{ghome}/$src", $src;
@@ -105,7 +130,7 @@ sub push_launchpad {
         my $srcdir = "termysequence-$$config{version}";
         system("rm -rf $srcdir/");
         system("tar Jxf $src");
-        system("cp -rL $$config{phome}/targets/$$config{target}/files/$dvers $srcdir/debian");
+        system("cp -rL $$config{phome}/targets/debian-$$config{product}/files/$dvers $srcdir/debian");
 
         chdir $srcdir or die;
         open(FH, '<', 'debian/changelog') or die;
@@ -124,7 +149,7 @@ sub push_launchpad {
         system("debuild -d -S -sa -k$$config{email}") and die;
 
         chdir "$$config{phome}/build" or die;
-        system("dput -f ppa:sigalrm/termysequence termysequence-$$config{product}_$$config{version}-${release}_source.changes") and die;
+        system("dput -f ppa:sigalrm/termysequence termysequence-$$config{product}_$$config{version}-${release}~${dvers}_source.changes") and die;
     }
 }
 
@@ -139,6 +164,7 @@ sub push_obs {
 sub perform {
     my ($self, $config) = @_;
 
+    push_scratch($config) if $$config{upstream} eq 'scratch';
     push_copr($config) if $$config{upstream} eq 'copr';
     push_fedora($config) if $$config{upstream} eq 'fedora';
     push_launchpad($config) if $$config{upstream} eq 'launchpad';

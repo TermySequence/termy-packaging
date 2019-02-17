@@ -93,10 +93,9 @@ sub update_arch {
 
     # Patches
     foreach my $patch (@{$$config{series}}) {
-        unless (-f $patch) {
-            system("cp $$config{phome}/patches/$patch .") and die;
-            system("osc add $patch") and die;
-        }
+        my $needadd = ! -f $patch;
+        system("cp $$config{phome}/patches/$patch .") and die;
+        system("osc add $patch") and die if $needadd;
     }
 
     $$self{did_obs} = 1;
@@ -136,6 +135,13 @@ sub update_debian {
     open(FH, '<', 'changelog') or die;
     @lines = <FH>;
     close(FH);
+
+    while (@lines) {
+        # Remove stanzas with same release
+        last unless $lines[0] =~ m/^termysequence-$$config{product} \($$config{version}-$$config{release}\D/;
+        shift @lines;
+        shift @lines while @lines && $lines[0] =~ m/^\s+/;
+    }
 
     open(FH, '>', 'changelog') or die;
     print FH "termysequence-$$config{product} ($$config{version}-$$config{release}) unstable; urgency=medium\n";
@@ -214,54 +220,67 @@ sub update_fedora_fedora {
     my ($config) = @_;
 
     # Specfile
-    my @lines;
+    my (@in, @out);
     my $actions = 0;
     my $specfile = "termy-$$config{product}.spec";
 
     open(FH, '<', $specfile) or die;
-    while (<FH>) {
-        chomp;
+    chomp(@in = <FH>);
+    close(FH);
+
+    while (@in) {
+        $_ = shift @in;
+
         if (m/^Version: (.*)$/) {
-            push @lines, "Version: $$config{version}";
+            push @out, "Version: $$config{version}";
             ++$actions;
             next;
         }
         if (m/^Release: \d+(.*)$/) {
-            push @lines, "Release: $$config{release}$1";
+            push @out, "Release: $$config{release}$1";
             ++$actions;
             next;
         }
         if (m/^Source: (.*)\//) {
-            push @lines, "Source: $1/termysequence-$$config{product}-\%{version}.tar.xz";
+            push @out, "Source: $1/termysequence-$$config{product}-\%{version}.tar.xz";
             ++$actions;
             next;
         }
         if (m/^\s*# Patches here/) {
-            push @lines, $_;
+            push @out, $_;
+            shift @in while $in[0] =~ m/^Patch\d+:/;
             my $count = 1;
             foreach my $patch (@{$$config{series}}) {
-                push @lines, "Patch$count: $patch";
+                push @out, "Patch$count: $patch";
                 ++$count;
             }
             ++$actions;
             next;
         }
         if (m/^%changelog/) {
+            push @out, $_;
+
+            while (@in) {
+                # Remove stanzas with same release
+                last unless $in[0] =~ m/$$config{version}-$$config{release}$/;
+                shift @in;
+                shift @in while @in && $in[0] !~ /^\*/;
+            }
+
             my $datespec = time2str("%a %b %d %Y", time);
-            push @lines, $_;
-            push @lines, "* $datespec $$config{fullname} <$$config{email}> - $$config{version}-$$config{release}";
-            push @lines, map("- $_", @{$$config{log}});
-            push @lines, '';
+            push @out, "* $datespec $$config{fullname} <$$config{email}> - $$config{version}-$$config{release}";
+            push @out, map("- $_", @{$$config{log}});
+            push @out, '';
             ++$actions;
             next;
         }
-        push @lines, $_ unless m/^Patch\d+: /;
+        push @out, $_;
     }
     close(FH);
     die unless $actions == 5;
 
     open(FH, '>', $specfile);
-    print FH map("$_\n", @lines);
+    print FH map("$_\n", @out);
     close(FH);
 
     # Patches
@@ -302,10 +321,9 @@ sub update_fedora_obs {
     # Patches
     if ($branch eq 'rawhide') {
         foreach my $patch (@{$$config{series}}) {
-            unless (-f $patch) {
-                system("cp $$config{phome}/patches/$patch .") and die;
-                system("osc add $patch") and die;
-            }
+            my $needadd = ! -f $patch;
+            system("cp $$config{phome}/patches/$patch .") and die;
+            system("osc add $patch") and die if $needadd;
         }
     }
 }
@@ -384,10 +402,9 @@ sub update_opensuse_obs {
 
     # Patches
     foreach my $patch (@{$$config{series}}) {
-        unless (-f $patch) {
-            system("cp $$config{phome}/patches/$patch .") and die;
-            system("osc add $patch") and die;
-        }
+        my $needadd = ! -f $patch;
+        system("cp $$config{phome}/patches/$patch .") and die;
+        system("osc add $patch") and die if $needadd;
     }
 
     print "\t\tUpdated specfile to $$config{version}-$$config{release}\n";
@@ -440,6 +457,21 @@ sub read_release {
     return $self->read_specfile_release($config, 'Tumbleweed') if $$config{distro} eq 'opensuse';
 }
 
+sub finish_fedora {
+    my ($config) = @_;
+
+    my $updir = "$$config{phome}/upstreams/fedora-$$config{product}";
+    chdir "$updir/" or die;
+
+    foreach my $branch (glob('*')) {
+        chdir "$updir/$branch" or die;
+        # Clean up obsolete patches
+        for (glob("*.patch")) {
+            system("git rm -f $_") and die unless -f "$$config{phome}/patches/$_";
+        }
+    }
+}
+
 sub finish_obs {
     my ($config, $changes) = @_;
 
@@ -460,6 +492,11 @@ sub finish_obs {
     print FH "\n";
     print FH @lines;
     close(FH);
+
+    # Clean up obsolete patches
+    for (glob("*.patch")) {
+        system("osc remove --force $_") and die unless -f "$$config{phome}/patches/$_";
+    }
 }
 
 sub finish {
@@ -475,6 +512,7 @@ sub finish {
         }
     }
 
+    finish_fedora($config) if exists $$self{did_fedora};
     finish_obs($config, $changes) if exists $$self{did_obs};
 }
 

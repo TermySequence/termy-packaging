@@ -15,7 +15,8 @@ my $term = new Term::ReadLine 'relman';
 
 # my @products = qw/server qt/;
 use constant PRODUCTS => qw/server qt/;
-use constant UPSTREAMS => qw/copr fedora launchpad obs/;
+use constant REPOS => qw/main v8/;
+use constant UPSTREAMS => qw/scratch copr fedora launchpad obs/;
 use constant TMPFILE => "/tmp/relman-commit.txt";
 use constant EDITOR => $ENV{EDITOR} || 'vi';
 
@@ -79,7 +80,8 @@ sub prompt_targets {
 
 sub all_targets {
     chdir "$$config{phome}/targets";
-    return glob("*-$$config{product}");
+    my $product = shift() ? '*' : $$config{product};
+    return glob("*-$product");
 }
 
 sub prompt_upstream {
@@ -92,7 +94,28 @@ sub prompt_upstream {
         ++$idx;
     }
 
-    return $upstreams[int(prompt_string('?'))];
+    $idx = prompt_string('?');
+    return '' unless defined($idx) && $idx =~ m/^\d+$/;
+    $idx = int($idx);
+    return '' unless $idx >= 0 && $idx < @upstreams;
+    return $upstreams[$idx];
+}
+
+sub prompt_repo {
+    my @repos = (REPOS);
+    my $idx = 0;
+
+    print "Select source repo:\n";
+    foreach my $repo (@repos) {
+        print "$idx: $repo\n";
+        ++$idx;
+    }
+
+    $idx = prompt_string('?');
+    return '' unless defined($idx) && $idx =~ m/^\d+$/;
+    $idx = int($idx);
+    return '' unless $idx >= 0 && $idx < @repos;
+    return $repos[$idx];
 }
 
 sub prompt_patch {
@@ -143,7 +166,7 @@ sub set_product {
 }
 
 sub view_patches {
-    foreach my $target (prompt_targets()) {
+    foreach my $target (all_targets()) {
         chomp(my $release = `cat $target/release`);
         print "${target} (next release: $$config{version}-$release):\n";
 
@@ -165,26 +188,48 @@ sub view_patches {
 }
 
 sub extract_patch {
-    chdir $$config{ghome};
+    my $repo = prompt_repo();
+    return 0 unless $repo;
     my $patch_id = prompt_string('commit id?', 'HEAD');
+
+    if ($repo eq 'v8') {
+        chdir "$$config{ghome}/vendor/v8-linux" or die;
+    } else {
+        chdir "$$config{ghome}" or die;
+    }
 
     chomp(my $lognam = `git log --pretty=format:%f -n1 $patch_id`);
     die if $?;
-    $lastpatch = prompt_string('filename?', $lognam);
+    $lastpatch = prompt_string('filename?', lc($lognam));
     $lastpatch .= ".patch" unless $lastpatch =~ /\.patch$/;
 
     my $patch_path = "$$config{phome}/patches/$lastpatch";
 
     if (-f "$patch_path") {
-        print STDERR "That patch already exists!\n";
-        return;
+        return 0 if 'y' ne lc(prompt_string('Patch already exists, overwrite? [n]', '', 'n'));
     }
 
     system("git log -n1 -p $patch_id >$patch_path");
     print "\tImported $patch_id to patches/$lastpatch\n";
 
+    if ($repo eq 'v8') {
+        # Fix up the patch paths
+        open(FH, '<', "$patch_path") or die;
+        my @lines = <FH>;
+        close(FH);
+
+        for (@lines) {
+            s|\b([ab])/v8|$1/vendor/v8-linux/v8|g if m/^diff/;
+            s|\b([ab])/v8|$1/vendor/v8-linux/v8| if m/^(---|\+\+\+)/;
+        }
+
+        open(FH, '>', "$patch_path") or die;
+        print FH @lines;
+        close(FH);
+    }
+
     # chomp(my $msg = `git log --pretty=format:%s -n1 $patch_id`);
-    my $msg = get_msg_for_patch($patch_path);
+    my $msg = get_msg_from_patch($patch_path);
     print "\t$msg\n";
     return 1;
 }
@@ -309,6 +354,16 @@ sub collect_keys {
     system("ssh-add ~/.ssh/fedora") and die;
     system("gpg-connect-agent /bye") and die;
     system("gpg -s -b --default-key $$config{email} --output /dev/null /dev/null") and die;
+
+    my $identity;
+    open(FH, '<', "$ENV{HOME}/.config/goa-1.0/accounts.conf") or die;
+    while (<FH>) {
+        $identity = $1, last if m/^Identity=(.*)/;
+    }
+    close(FH);
+    die unless defined($identity);
+    system("kinit $identity") and die;
+
     return 0;
 }
 
@@ -322,8 +377,7 @@ sub prep_update {
     }
 
     my $prep = new Preparator();
-    chdir "$$config{phome}/targets";
-    foreach my $target (glob("*-*")) {
+    foreach my $target (all_targets(1)) {
         my ($distro, $product) = split('-', $target);
 
         print "● Prepping $target...\n";
@@ -385,15 +439,11 @@ sub stage_update {
     return 1;
 }
 
-sub undo_update {
-    print STDERR "Not implemented\n";
-    return 1;
-}
-
 sub push_update {
     my $push = new Pushenator($config);
 
     my $upstream = prompt_upstream();
+    return 0 unless $upstream;
     print "● Pushing to $upstream...\n";
     $push->perform($config->extend(upstream => $upstream));
 
@@ -408,15 +458,14 @@ sub menu {
     print "2. Import patch from git\n";
     print "3. Import patch from file\n";
     print "4. Link patch to target\n";
-    print "5. Unlink patch from distro\n";
+    print "5. Unlink patch from target\n";
     print "6. Record change to distro files\n";
     print "7. Bump version (currently $$config{version})\n";
     print "8. Collect pass phrases\n";
     print "9. Prepare for update\n";
     print "10. Stage an update\n";
-    print "11. Walk back an update\n";
-    print "12. Commit and push an update\n";
-    print "13. Quit\n";
+    print "11. Commit and push an update\n";
+    print "12. Quit\n";
 
     chomp(my $reply = prompt_string('>'));
 
@@ -431,9 +480,8 @@ sub menu {
     return collect_keys if $reply eq 8;
     return prep_update if $reply eq 9;
     return stage_update if $reply eq 10;
-    return undo_update if $reply eq 11;
-    return push_update if $reply eq 12;
-    exit if $reply eq 13;
+    return push_update if $reply eq 11;
+    exit if $reply eq 12;
 }
 
 sub main {
@@ -443,10 +491,11 @@ sub main {
     }
 
     $config = new Configurator('qt');
+    $$config{prompt_string} = \&prompt_string;
 
     while (1) {
         if (menu()) {
-            print ". ";
+            print "✔ ";
             my $notused = <STDIN>;
         }
     }

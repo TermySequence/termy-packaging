@@ -7,7 +7,7 @@ if [ ! -d debian.server ]; then
     exit 1
 fi
 
-release=bionic
+releases=(bionic cosmic)
 
 phome=$(pwd)
 ghome=~/git/termysequence
@@ -27,17 +27,20 @@ tar Jxf termysequence-server-${vers}.tar.xz
 
 cp -rL $phome/debian.server termysequence-${vers}/debian
 
-cd termysequence-${vers}/
-sed -ie "1 s/unstable/$release/" debian/changelog
-debuild -d -S -sa -k${ident}
+for release in "${releases[@]}"; do
+    cd termysequence-${vers}/
 
-read -p 'build? ' build
-if [ "$build" = 'y' ]; then
-    debuild -d -us -uc
-fi
+    sed -e "1 s/unstable/$release/g" $phome/debian.server/changelog > debian/changelog
+    debuild -d -S -sa -k${ident}
 
-read -p 'upload? ' upload
-if [ "$upload" = 'y' ]; then
-    cd ~/deb
-    dput -f ppa:sigalrm/termysequence termysequence-server_${vers}-${rel}_source.changes
-fi
+    read -p "build $release? " build
+    if [ "$build" = 'y' ]; then
+        debuild -d -us -uc
+    fi
+
+    read -p "upload $release? " upload
+    if [ "$upload" = 'y' ]; then
+        cd ~/deb
+        dput -f ppa:sigalrm/termysequence termysequence-server_${vers}-${rel}_source.changes
+    fi
+done
