@@ -362,7 +362,9 @@ sub collect_keys {
     }
     close(FH);
     die unless defined($identity);
-    system("kinit $identity") and die;
+    for (my $i = 0; $i < 3; ++$i) {
+        last if system("kinit $identity") == 0;
+    }
 
     return 0;
 }
