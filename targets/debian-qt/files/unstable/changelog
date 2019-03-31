@@ -1,3 +1,9 @@
+termysequence-qt (1.1.4-4) unstable; urgency=medium
+
+  * qt: Use case-insensitive hostname comparison
+
+ -- Eamon Walsh <ewalsh@termysequence.com>  Sun, 31 Mar 2019 08:23:59 -0400
+
 termysequence-qt (1.1.4-3) unstable; urgency=medium
 
   * Fix GCC 9 warnings and errors

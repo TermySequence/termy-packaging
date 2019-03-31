@@ -1,6 +1,6 @@
 pkgname=termy-qt
 pkgver=1.1.4
-pkgrel=3
+pkgrel=4
 _pkgdir="termysequence-$pkgver"
 pkgdesc="TermySequence terminal multiplexer client"
 arch=('x86_64' 'i686')
@@ -10,8 +10,8 @@ makedepends=('cmake>=3.9.0' 'qt5-base' 'qt5-svg' 'qt5-tools' 'systemd>=235'
              'ninja>=1.8.2' 'python2>=2.7' 'python2-jinja>=2.10' 'icu>=60.2')
 checkdepends=('desktop-file-utils' 'appstream-glib')
 depends=('fuse3' 'zlib' 'sqlite' 'qt5-base' 'qt5-svg' 'icu>=60.2' 'systemd>=235')
-source=("termysequence-qt_$pkgver.orig.tar.xz" 'set-clipboard-selection.patch' 'fix-gcc-9-warnings-and-errors.patch')
-sha256sums=('1b90610e93c227e72c5c7a8ed0d4e9fe005637dc563bcb7b0bceb58784599dc0' 'e52f17962246747c4f2f55535682279d9e102dc740a70f3f1633e0241283502d' 'b042722c45c63658a9177d06a8789e22b681cc74fce7a41f07a3143579e0c221')
+source=("termysequence-qt_$pkgver.orig.tar.xz" 'set-clipboard-selection.patch' 'fix-gcc-9-warnings-and-errors.patch' 'qt-use-case-insensitive-hostname-comparison.patch')
+sha256sums=('1b90610e93c227e72c5c7a8ed0d4e9fe005637dc563bcb7b0bceb58784599dc0' 'e52f17962246747c4f2f55535682279d9e102dc740a70f3f1633e0241283502d' 'b042722c45c63658a9177d06a8789e22b681cc74fce7a41f07a3143579e0c221' 'a818206c69ea2f555c10b7492fc043f6491c51bddaa479e9193d14b167e3e9e9')
 
 prepare() {
     cd $_pkgdir
@@ -19,6 +19,7 @@ prepare() {
     # Patches here (do not remove this comment)
     patch -Np1 -i "${srcdir}/set-clipboard-selection.patch"
     patch -Np1 -i "${srcdir}/fix-gcc-9-warnings-and-errors.patch"
+    patch -Np1 -i "${srcdir}/qt-use-case-insensitive-hostname-comparison.patch"
 
     if [ "$CARCH" = 'x86_64' ]; then
         v8arch=x64;

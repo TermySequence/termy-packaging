@@ -1,7 +1,7 @@
 Name:    termy-qt
 Summary: TermySequence terminal multiplexer client
 Version: 1.1.4
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 # This is a limitation of the bundled v8 library
 ExclusiveArch: %{ix86} x86_64
@@ -18,6 +18,7 @@ Source: termysequence-qt_%{version}.orig.tar.xz
 # Patches here (do not remove this comment)
 Patch1: set-clipboard-selection.patch
 Patch2: fix-gcc-9-warnings-and-errors.patch
+Patch3: qt-use-case-insensitive-hostname-comparison.patch
 
 BuildRequires: appstream-glib
 BuildRequires: cmake >= 3.9.0

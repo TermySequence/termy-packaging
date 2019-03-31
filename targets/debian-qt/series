@@ -1,3 +1,4 @@
 visibility-warning-go-away.patch
 set-clipboard-selection.patch
 fix-gcc-9-warnings-and-errors.patch
+qt-use-case-insensitive-hostname-comparison.patch
