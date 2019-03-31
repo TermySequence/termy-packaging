@@ -452,6 +452,22 @@ sub push_update {
     return 1;
 }
 
+sub update_issue {
+    print "A patched termy-$$config{product} package is now available in [COPR]";
+    print "(https://copr.fedorainfracloud.org/coprs/ewalsh/termysequence/) for testing.";
+    print "\n";
+
+    print "Updated packages are now available for ";
+    print "[Ubuntu](https://termysequence.io/releases/#ubuntu), ";
+    print "[OpenSUSE](https://termysequence.io/releases/#opensuse), and ";
+    print "[Arch](https://termysequence.io/releases/#arch). ";
+
+    chdir "$$config{phome}/upstreams/fedora-$$config{product}";
+    my $distrovers = uc((sort {$a cmp $b} glob('*'))[0]);
+    print "Updates are submitted for ${distrovers}+. ";
+    print "\n";
+}
+
 sub menu {
     print "--------------------------------\n";
     print "Main menu:\n";
@@ -467,7 +483,8 @@ sub menu {
     print "9. Prepare for update\n";
     print "10. Stage an update\n";
     print "11. Commit and push an update\n";
-    print "12. Quit\n";
+    print "12. Get comments for GitHub issue\n";
+    print "13. Quit\n";
 
     chomp(my $reply = prompt_string('>'));
 
@@ -483,7 +500,8 @@ sub menu {
     return prep_update if $reply eq 9;
     return stage_update if $reply eq 10;
     return push_update if $reply eq 11;
-    exit if $reply eq 12;
+    return update_issue if $reply eq 12;
+    exit if $reply eq 13;
 }
 
 sub main {
